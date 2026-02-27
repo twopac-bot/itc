@@ -22,6 +22,7 @@ from passlib.context import CryptContext
 from reconciliation.parser import GSTRParser, TallyParser
 from reconciliation.matcher import InvoiceMatcher
 from reconciliation.report import ReportGenerator
+from graph_engine import build_graph, run_fraud_analysis, compute_risk_scores
 
 
 # Settings
@@ -243,6 +244,48 @@ async def reconcile(
             'pending_vendor_filing': result.pending_vendor_filing,
             'mismatches': result.mismatches
         }
+
+        # --- Graph Intelligence Layer ---
+        try:
+            logger.info("Building knowledge graph")
+            graph = build_graph(gstr2b_data, report_data)
+
+            logger.info("Running fraud analysis")
+            fraud_result = run_fraud_analysis(graph)
+
+            logger.info("Computing risk scores")
+            risk_result = compute_risk_scores(
+                graph,
+                fraud_result,
+                buyer_gstin=gstr2b_data.get('gstin', ''),
+            )
+
+            report_data['graph_analysis'] = {
+                'fraud_flags': [
+                    {
+                        'invoice_node_id': f.invoice_node_id,
+                        'rule_name': f.rule_name,
+                        'description': f.description,
+                        'severity': f.severity,
+                        'metadata': f.metadata,
+                    }
+                    for f in fraud_result.flags
+                ],
+                'risk_scores': risk_result.to_dict(),
+                'graph_stats': {
+                    'total_nodes': graph.number_of_nodes(),
+                    'total_edges': graph.number_of_edges(),
+                },
+            }
+            logger.info(
+                "Graph analysis complete: %d fraud flags, %d scored invoices",
+                len(fraud_result.flags),
+                len(risk_result.scored_invoices),
+            )
+        except Exception as graph_err:
+            # Graph layer is additive — never break existing reconciliation
+            logger.warning("Graph analysis failed (non-fatal): %s", graph_err, exc_info=True)
+            report_data['graph_analysis'] = None
         
         ReportGenerator.generate_excel_report(report_data, str(report_path))
         

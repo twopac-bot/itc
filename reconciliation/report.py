@@ -78,6 +78,21 @@ class ReportGenerator:
                                                 header_format, currency_format, 
                                                 warning_format, border_format)
         
+        # Add Risk Analysis Sheet (from graph intelligence layer)
+        graph_analysis = result.get('graph_analysis')
+        if graph_analysis and graph_analysis.get('risk_scores'):
+            risk_sheet = workbook.add_worksheet('Risk Analysis')
+            ReportGenerator._write_risk_analysis_sheet(
+                risk_sheet,
+                graph_analysis,
+                header_format,
+                currency_format,
+                warning_format,
+                danger_format,
+                success_format,
+                border_format,
+            )
+
         # Add Instructions Sheet
         instructions_sheet = workbook.add_worksheet('Instructions')
         ReportGenerator._write_instructions_sheet(instructions_sheet, header_format, border_format)
@@ -283,7 +298,74 @@ class ReportGenerator:
             worksheet.write(row, 7, ', '.join(mismatch['mismatches']), border_format)
             worksheet.write(row, 8, mismatch['match_score'], border_format)
             row += 1
-    
+
+    @staticmethod
+    def _write_risk_analysis_sheet(
+        worksheet, graph_analysis: Dict, header_format, currency_format,
+        warning_format, danger_format, success_format, border_format,
+    ):
+        """Write risk-analysis results produced by the graph intelligence layer."""
+        risk_data = graph_analysis.get('risk_scores', {})
+        scored_invoices = risk_data.get('scored_invoices', [])
+        graph_stats = graph_analysis.get('graph_stats', {})
+
+        # ---- sub-header: aggregate stats ----
+        worksheet.set_column('A:A', 30)
+        worksheet.set_column('B:B', 20)
+        worksheet.merge_range('A1:H1', 'Graph Intelligence — Risk Analysis', header_format)
+
+        meta_rows = [
+            ('Total Flagged Invoices', risk_data.get('total_flagged', 0)),
+            ('High-Risk Invoices', risk_data.get('high_risk_count', 0)),
+            ('Critical Invoices', risk_data.get('critical_count', 0)),
+            ('Average Risk Score', risk_data.get('average_risk_score', 0)),
+            ('Graph Nodes', graph_stats.get('total_nodes', 0)),
+            ('Graph Edges', graph_stats.get('total_edges', 0)),
+        ]
+        for idx, (label, value) in enumerate(meta_rows):
+            worksheet.write(2 + idx, 0, label, border_format)
+            worksheet.write(2 + idx, 1, value, border_format)
+
+        if not scored_invoices:
+            worksheet.write(9, 0, 'No risk flags detected — all invoices clean.', success_format)
+            return
+
+        # ---- detail table ----
+        detail_start = 2 + len(meta_rows) + 2  # blank row gap
+        headers = [
+            'Invoice Number', 'Supplier GSTIN', 'Buyer GSTIN',
+            'Risk Score', 'Risk Category', 'Triggered Rules', 'Description',
+        ]
+        widths = [22, 20, 20, 14, 16, 30, 60]
+        for i, w in enumerate(widths):
+            worksheet.set_column(i, i, w)
+
+        for col, h in enumerate(headers):
+            worksheet.write(detail_start, col, h, header_format)
+
+        for row_idx, inv in enumerate(scored_invoices, start=detail_start + 1):
+            cat = inv.get('risk_category', '')
+            if cat == 'CRITICAL':
+                fmt = danger_format
+            elif cat == 'HIGH':
+                fmt = warning_format
+            elif cat in ('MEDIUM', 'LOW'):
+                fmt = border_format
+            else:
+                fmt = success_format
+
+            descriptions = '; '.join(
+                d.get('description', '') for d in inv.get('details', [])
+            )
+
+            worksheet.write(row_idx, 0, inv.get('invoice_number', ''), fmt)
+            worksheet.write(row_idx, 1, inv.get('supplier_gstin', ''), fmt)
+            worksheet.write(row_idx, 2, inv.get('buyer_gstin', ''), fmt)
+            worksheet.write(row_idx, 3, inv.get('risk_score', 0), fmt)
+            worksheet.write(row_idx, 4, cat, fmt)
+            worksheet.write(row_idx, 5, ', '.join(inv.get('triggered_rules', [])), fmt)
+            worksheet.write(row_idx, 6, descriptions, fmt)
+
     @staticmethod
     def _write_instructions_sheet(worksheet, header_format, border_format):
         """Write instructions for using the report"""
@@ -314,11 +396,19 @@ class ReportGenerator:
             ('   - Invoices with amount or date differences', False),
             ('   - Review and correct in books if needed', False),
             ('', False),
+            ('6. Risk Analysis Sheet (NEW):', True),
+            ('   - Graph-based fraud detection and risk scoring', False),
+            ('   - Each flagged invoice has a risk score (0-100)', False),
+            ('   - CRITICAL (red): carousel fraud or phantom invoices', False),
+            ('   - HIGH (yellow): missing chain or cycle participation', False),
+            ('   - Rules: missing_chain, high_degree_supplier, cycle_participation', False),
+            ('', False),
             ('Action Items:', True),
             ('1. Immediately claim ITC for yellow highlighted invoices', False),
             ('2. Record missing invoices in your books', False),
             ('3. Follow up with vendors for pending filings', False),
             ('4. Review and resolve mismatches', False),
+            ('5. Investigate CRITICAL and HIGH risk invoices in Risk Analysis sheet', False),
         ]
         
         row = 0

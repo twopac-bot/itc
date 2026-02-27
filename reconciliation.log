@@ -1,0 +1,16 @@
+2026-02-27 15:37:08,683 - main - INFO - Parsing GSTR-2B file: sample_gstr2b.json
+2026-02-27 15:37:08,685 - main - INFO - Parsing Tally file: sample_tally.csv
+2026-02-27 15:37:08,691 - main - INFO - Starting reconciliation process
+2026-02-27 15:37:08,691 - main - INFO - Generating Excel report: 389950ef-472c-4a59-93a2-6f9845639af8
+2026-02-27 15:37:08,691 - main - INFO - Building knowledge graph
+2026-02-27 15:37:08,692 - graph_engine.graph_builder - INFO - Graph built: 17 nodes, 37 edges
+2026-02-27 15:37:08,692 - main - INFO - Running fraud analysis
+2026-02-27 15:37:08,692 - graph_engine.fraud_detection - INFO - detect_missing_chain: 2 flags
+2026-02-27 15:37:08,692 - graph_engine.fraud_detection - INFO - detect_high_degree_suppliers: 0 flags
+2026-02-27 15:37:08,693 - graph_engine.fraud_detection - INFO - detect_cycles: 0 flags
+2026-02-27 15:37:08,693 - graph_engine.fraud_detection - INFO - Fraud analysis complete: 2 total flags across 2 invoices
+2026-02-27 15:37:08,694 - main - INFO - Computing risk scores
+2026-02-27 15:37:08,694 - graph_engine.risk_scoring - INFO - Risk scoring complete: 2 invoices scored — 0 HIGH, 0 CRITICAL, avg=30.0
+2026-02-27 15:37:08,694 - main - INFO - Graph analysis complete: 2 fraud flags, 2 scored invoices
+2026-02-27 15:37:08,742 - main - INFO - Reconciliation completed - Report ID: 389950ef-472c-4a59-93a2-6f9845639af8
+2026-02-27 15:37:08,742 - main - INFO - Summary: {'total_invoices_in_gstr2b': 7, 'total_invoices_in_tally': 5, 'matched_count': 5, 'matched_itc_amount': 45000, 'missing_in_books_count': 2, 'available_itc_amount': 0, 'expired_itc_amount': 10800, 'pending_vendor_filing_count': 0, 'pending_itc_amount': 0, 'mismatch_count': 0, 'deadline_warnings': 0}
