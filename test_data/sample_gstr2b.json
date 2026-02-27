@@ -1,0 +1,140 @@
+{
+  "gstin": "29ABCDE1234F1Z5",
+  "fp": "042024",
+  "b2b": [
+    {
+      "ctin": "29XYZAB5678C1D2",
+      "inv": [
+        {
+          "inum": "INV-2024-001",
+          "idt": "05-04-2024",
+          "val": 118000,
+          "pos": "29",
+          "rchrg": "N",
+          "inv_typ": "R",
+          "itms": [
+            {
+              "num": 1,
+              "txval": 100000,
+              "igst": 18000,
+              "cgst": 0,
+              "sgst": 0
+            }
+          ]
+        },
+        {
+          "inum": "INV-2024-002",
+          "idt": "10-04-2024",
+          "val": 59000,
+          "pos": "29",
+          "rchrg": "N",
+          "inv_typ": "R",
+          "itms": [
+            {
+              "num": 1,
+              "txval": 50000,
+              "igst": 0,
+              "cgst": 4500,
+              "sgst": 4500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ctin": "27DEFGH9876J5K3",
+      "inv": [
+        {
+          "inum": "BILL/2024/156",
+          "idt": "15-04-2024",
+          "val": 35400,
+          "pos": "27",
+          "rchrg": "N",
+          "inv_typ": "R",
+          "itms": [
+            {
+              "num": 1,
+              "txval": 30000,
+              "igst": 5400,
+              "cgst": 0,
+              "sgst": 0
+            }
+          ]
+        },
+        {
+          "inum": "BILL/2024/180",
+          "idt": "20-04-2024",
+          "val": 23600,
+          "pos": "29",
+          "rchrg": "N",
+          "inv_typ": "R",
+          "itms": [
+            {
+              "num": 1,
+              "txval": 20000,
+              "igst": 0,
+              "cgst": 1800,
+              "sgst": 1800
+            }
+          ]
+        },
+        {
+          "inum": "BILL/2024/195",
+          "idt": "25-04-2024",
+          "val": 11800,
+          "pos": "29",
+          "rchrg": "N",
+          "inv_typ": "R",
+          "itms": [
+            {
+              "num": 1,
+              "txval": 10000,
+              "igst": 0,
+              "cgst": 900,
+              "sgst": 900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ctin": "32MNOPQ4567R8S9",
+      "inv": [
+        {
+          "inum": "2024-25/089",
+          "idt": "01-04-2024",
+          "val": 70800,
+          "pos": "32",
+          "rchrg": "N",
+          "inv_typ": "R",
+          "itms": [
+            {
+              "num": 1,
+              "txval": 60000,
+              "igst": 10800,
+              "cgst": 0,
+              "sgst": 0
+            }
+          ]
+        },
+        {
+          "inum": "2024-25/125",
+          "idt": "28-03-2024",
+          "val": 47200,
+          "pos": "32",
+          "rchrg": "N",
+          "inv_typ": "R",
+          "itms": [
+            {
+              "num": 1,
+              "txval": 40000,
+              "igst": 7200,
+              "cgst": 0,
+              "sgst": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
